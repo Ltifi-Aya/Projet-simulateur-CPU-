@@ -212,5 +212,3 @@ class ALUTest {
                 "0x0F XOR 0xF0 = 0xFF");
     }
 }
-
-//push
