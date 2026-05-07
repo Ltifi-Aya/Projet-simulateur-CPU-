@@ -22,6 +22,9 @@ package instruction;
  *    8    | AND             | ET binaire sur deux registres
  *    9    | OR              | OU binaire sur deux registres
  *   10    | XOR             | OU exclusif sur deux registres
+ *   11    | JUMP            | Saut inconditionnel
+ *   12    | BEQ             | Saut si égal (Branch if Equal)
+ *   13    | BNE             | Saut si non égal (Branch if Not Equal)
  * </pre>
  *
  * @author Personne 2
@@ -115,7 +118,31 @@ public enum Opcode {
      * <p>Paramètres : registre destination, registre A, registre B (1 octet chacun).</p>
      * <p>Exemple assembleur : {@code xor r2, r0, r1} → r2 = r0 XOR r1</p>
      */
-    XOR(10);
+    XOR(10),
+
+    /**
+     * Effectue un saut inconditionnel à une adresse spécifiée.
+     * <p>Opcode : {@code 11}</p>
+     * <p>Paramètres : adresse destination (2 octets).</p>
+     * <p>Exemple assembleur : {@code jump @100}</p>
+     */
+    JUMP(11),
+
+    /**
+     * Effectue un saut si deux registres sont égaux (Branch if Equal).
+     * <p>Opcode : {@code 12}</p>
+     * <p>Paramètres : registre A (1 octet), registre B (1 octet), adresse destination (2 octets).</p>
+     * <p>Exemple assembleur : {@code beq r0, r1, @100}</p>
+     */
+    BEQ(12),
+
+    /**
+     * Effectue un saut si deux registres ne sont pas égaux (Branch if Not Equal).
+     * <p>Opcode : {@code 13}</p>
+     * <p>Paramètres : registre A (1 octet), registre B (1 octet), adresse destination (2 octets).</p>
+     * <p>Exemple assembleur : {@code bne r0, r1, @100}</p>
+     */
+    BNE(13);
 
     // -------------------------------------------------------------------------
 
