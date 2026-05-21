@@ -3,6 +3,7 @@ package app;
 import assembler.Assembler;
 import core.CPU;
 import core.Memory;
+import java.util.Scanner;
 
 /**
  * Point d'entrée principal du simulateur de processeur 8 bits.
@@ -21,13 +22,22 @@ public class Main {
         Memory memory = new Memory();
 
         // ─────────────────────────────────────────────
-        // 2. Programme assembleur
-        //    Démo : charge 5 et 6, additionne,
-        //    stocke le résultat, puis arrête
+        // 2. Lecture des données de l'utilisateur
+        // ─────────────────────────────────────────────
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Entrez le premier nombre (0-255) : ");
+        int num1 = scanner.nextInt();
+        System.out.print("Entrez le deuxième nombre (0-255) : ");
+        int num2 = scanner.nextInt();
+        scanner.close();
+
+        // ─────────────────────────────────────────────
+        // 3. Programme assembleur avec les données
+        //    de l'utilisateur
         // ─────────────────────────────────────────────
         String programme =
-            "LOAD_CONST r0, 5\n" +
-            "LOAD_CONST r1, 6\n" +
+            "LOAD_CONST r0, " + num1 + "\n" +
+            "LOAD_CONST r1, " + num2 + "\n" +
             "ADD r2, r0, r1\n"   +
             "STORE r2, @200\n"   +
             "BREAK\n";
@@ -64,17 +74,13 @@ public class Main {
         try {
             System.out.println("\n=== État final ===");
             System.out.println("r0          = "
-                + (cpu.getRegister(0) & 0xFF)
-                + "   (attendu : 5)");
+                + (cpu.getRegister(0) & 0xFF));
             System.out.println("r1          = "
-                + (cpu.getRegister(1) & 0xFF)
-                + "   (attendu : 6)");
+                + (cpu.getRegister(1) & 0xFF));
             System.out.println("r2          = "
-                + (cpu.getRegister(2) & 0xFF)
-                + "  (attendu : 11)");
+                + (cpu.getRegister(2) & 0xFF));
             System.out.println("mémoire[200]= "
-                + (memory.readByte(200) & 0xFF)
-                + "  (attendu : 11)");
+                + (memory.readByte(200) & 0xFF));
             System.out.println("PC final    = "
                 + cpu.getPC());
         } catch (Exception e) {

@@ -149,7 +149,8 @@ public class Assembler {
      */
     private void parseLine(String line) throws MemoryOutOfBoundsException {
 
-        // Supprime les commentaires
+        // Supprime les commen
+        // taires
         if (line.contains("//")) {
             line = line.substring(0, line.indexOf("//"));
         }
