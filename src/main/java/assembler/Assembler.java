@@ -168,7 +168,8 @@ public class Assembler {
 
         // Découpe en tokens
         // "ADD r2, r0, r1" → ["ADD", "r2", "r0", "r1"]
-        String[] tokens = line.replace(",", "").split("\\s+");
+        // Remplace les virgules par des espaces pour mieux parser
+        String[] tokens = line.replace(",", " ").split("\\s+");
         String mnemonic = tokens[0].toUpperCase();
 
         switch (mnemonic) {
@@ -179,6 +180,7 @@ public class Assembler {
                 break;
 
             case "LOAD_CONST":
+            case "LOAD":
                 // 3 octets : opcode + registre + valeur
                 emitByte(Opcode.LOAD_CONST.getValue());
                 emitByte(parseRegister(tokens[1]));
@@ -373,9 +375,6 @@ public class Assembler {
 
         // Passe 2 — résout les labels
         resolveLabels();
-
-        System.out.println("Assemblage terminé — "
-            + cursor + " octets écrits en mémoire.");
     }
 
 } // fin de la classe Assembler
