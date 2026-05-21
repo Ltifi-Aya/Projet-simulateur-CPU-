@@ -59,12 +59,15 @@ public class Main {
                     inspectionMemoire();
                     break;
                 case "7":
-                    chargerExemple();
+                    afficherProgrammeActuel();
                     break;
                 case "8":
-                    reinitialiserComplet();
+                    chargerExemple();
                     break;
                 case "9":
+                    reinitialiserComplet();
+                    break;
+                case "10":
                     continuer = false;
                     System.out.println("\nAu revoir !");
                     break;
@@ -91,9 +94,10 @@ public class Main {
         System.out.println("[4] Avancer d'une seule instruction (mode pas-a-pas)");
         System.out.println("[5] Inspecter les registres et le compteur de programme");
         System.out.println("[6] Inspecter une plage memoire");
-        System.out.println("[7] Charger un exemple de demonstration");
-        System.out.println("[8] Reinitialiser entierement le simulateur");
-        System.out.println("[9] Quitter");
+        System.out.println("[7] Afficher le programme actuel");
+        System.out.println("[8] Charger un exemple de demonstration");
+        System.out.println("[9] Reinitialiser entierement le simulateur");
+        System.out.println("[10] Quitter");
         System.out.println("-".repeat(80));
         System.out.print("Votre choix : ");
     }
@@ -180,8 +184,17 @@ public class Main {
                 cpu.startExecution();
             }
 
+            int instructionIndex = 0;
+
             while (cpu.isRunning()) {
-                System.out.println("\nPC = " + cpu.getPC());
+                System.out.println();
+                System.out.println("PC = " + cpu.getPC());
+
+                // Afficher l'instruction en cours
+                if (instructionIndex < programme.size()) {
+                    System.out.println("Instruction [" + (instructionIndex + 1) + "] : " + programme.get(instructionIndex));
+                }
+
                 System.out.print("Appuyez sur Entree pour executer (ou 'q' pour quitter) : ");
                 String input = scanner.nextLine().trim();
 
@@ -190,6 +203,7 @@ public class Main {
                 }
 
                 cpu.step();
+                instructionIndex++;
             }
 
             System.out.println("\nExecution pas-a-pas terminee.");
@@ -254,15 +268,43 @@ public class Main {
         }
     }
 
+    private static void afficherProgrammeActuel() {
+        System.out.println("\n" + "=".repeat(80));
+        System.out.println("Afficher le programme actuel");
+        System.out.println("=".repeat(80));
+
+        if (programme.isEmpty()) {
+            System.out.println("\nAucun programme n'a ete saisi pour le moment.");
+            System.out.println("Utilisez l'option [1] pour saisir un programme.");
+        } else {
+            System.out.println("\nProgramme actuel :");
+            for (int i = 0; i < programme.size(); i++) {
+                System.out.println("  " + (i + 1) + ": " + programme.get(i));
+            }
+        }
+    }
+
     private static void chargerExemple() {
         System.out.println("\n" + "=".repeat(80));
         System.out.println("Charger un exemple de demonstration");
         System.out.println("=".repeat(80));
 
+        // Réinitialiser la mémoire et le CPU pour nettoyer les anciennes données
+        memory.reset();
+        cpu.reset();
+
         programme.clear();
-        programme.add("load r0,5");
-        programme.add("load r1,6");
-        programme.add("add r2,r0,r1");
+        programme.add("load r0,42");
+        programme.add("load r1,100");
+        programme.add("load r2,15");
+        programme.add("store r0,500");
+        programme.add("store r1,501");
+        programme.add("store r2,502");
+        programme.add("load_mem r3,500");
+        programme.add("load_mem r4,501");
+        programme.add("load_mem r5,502");
+        programme.add("add r6,r3,r4");
+        programme.add("sub r7,r4,r5");
         programme.add("break");
 
         System.out.println("\nProgramme exemple charge :");

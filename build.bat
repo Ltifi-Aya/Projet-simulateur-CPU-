@@ -16,17 +16,21 @@ set BUILD_DIR=target\classes
 set TEST_BUILD_DIR=target\test-classes
 set LIB_DIR=lib
 
+REM Chemin vers Java 17
+set JAVA_HOME=C:\Program Files\Java\jdk-17
+set JAVAC=%JAVA_HOME%\bin\javac
+set JAVA=%JAVA_HOME%\bin\java
+
 REM Créer les répertoires de sortie
 echo 📁 Création des répertoires de build...
 if not exist "%BUILD_DIR%" mkdir "%BUILD_DIR%"
 if not exist "%TEST_BUILD_DIR%" mkdir "%TEST_BUILD_DIR%"
 
 REM Vérifier que javac est disponible
-javac -version >nul 2>&1
+"%JAVAC%" -version >nul 2>&1
 if errorlevel 1 (
     echo ❌ Erreur: javac n'a pas été trouvé
-    echo    Veuillez installer le JDK Java 17 ou supérieur
-    echo    Téléchargez-le depuis: https://www.oracle.com/java/technologies/downloads/
+    echo    Vérifiez que Java 17 est installé à: %JAVA_HOME%
     pause
     exit /b 1
 )
@@ -38,7 +42,7 @@ for /r "%SOURCE_DIR%" %%F in (*.java) do (
     set SOURCES=!SOURCES! "%%F"
 )
 
-javac -d "%BUILD_DIR%" -encoding UTF-8 %SOURCES%
+"%JAVAC%" -release 11 -d "%BUILD_DIR%" -encoding UTF-8 %SOURCES%
 
 if errorlevel 1 (
     echo ❌ Erreur de compilation des sources
@@ -64,7 +68,7 @@ for /r "%TEST_DIR%" %%F in (*.java) do (
     set TEST_SOURCES=!TEST_SOURCES! "%%F"
 )
 
-javac -d "%TEST_BUILD_DIR%" -cp "%BUILD_DIR%!JUNIT_CLASSPATH!" -encoding UTF-8 %TEST_SOURCES% 2>nul
+"%JAVAC%" -source 11 -target 11 -d "%TEST_BUILD_DIR%" -cp "%BUILD_DIR%!JUNIT_CLASSPATH!" -encoding UTF-8 %TEST_SOURCES% 2>nul
 
 if errorlevel 1 (
     echo ⚠️  Les tests n'ont pas pu être compilés (JUnit manquant)
@@ -75,7 +79,7 @@ if errorlevel 1 (
 REM Créer un JAR exécutable
 echo.
 echo 📦 Création du JAR exécutable...
-jar cfe target\cpu-simulator.jar app.Main -C "%BUILD_DIR%" .
+"%JAVA_HOME%\bin\jar" cfe target\cpu-simulator.jar app.Main -C "%BUILD_DIR%" .
 
 if errorlevel 1 (
     echo ❌ Erreur lors de la création du JAR
