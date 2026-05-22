@@ -181,10 +181,34 @@ public class Assembler {
 
             case "LOAD_CONST":
             case "LOAD":
-                // 3 octets : opcode + registre + valeur
-                emitByte(Opcode.LOAD_CONST.getValue());
-                emitByte(parseRegister(tokens[1]));
-                emitByte(parseValue(tokens[2]));
+                // Peut être LOAD_CONST, LOAD_MEM ou LOAD_INDEX
+                if (tokens.length == 3) {
+                    // LOAD r0, 5 → LOAD_CONST
+                    // ou LOAD r0, @100 → LOAD_MEM
+                    String arg = tokens[2];
+                    if (arg.startsWith("@")) {
+                        // LOAD_MEM : 4 octets
+                        emitByte(Opcode.LOAD_MEM.getValue());
+                        emitByte(parseRegister(tokens[1]));
+                        emitWord(parseValue(arg));
+                    } else {
+                        // LOAD_CONST : 3 octets
+                        emitByte(Opcode.LOAD_CONST.getValue());
+                        emitByte(parseRegister(tokens[1]));
+                        emitByte(parseValue(arg));
+                    }
+                } else if (tokens.length == 4) {
+                    // LOAD_INDEX : LOAD r0, @100, r1 → 5 octets
+                    emitByte(Opcode.LOAD_INDEX.getValue());
+                    emitByte(parseRegister(tokens[1]));
+                    emitWord(parseValue(tokens[2]));
+                    emitByte(parseRegister(tokens[3]));
+                } else {
+                    throw new IllegalArgumentException(
+                        "LOAD : nombre d'arguments incorrect " +
+                        "(attendu: LOAD r0, valeur ou LOAD r0, @addr ou LOAD r0, @addr, r1)"
+                    );
+                }
                 break;
 
             case "LOAD_MEM":
@@ -195,10 +219,24 @@ public class Assembler {
                 break;
 
             case "STORE":
-                // 4 octets : opcode + registre + adresse(2 octets)
-                emitByte(Opcode.STORE.getValue());
-                emitByte(parseRegister(tokens[1]));
-                emitWord(parseValue(tokens[2]));
+                // Peut être STORE ou STORE_INDEX
+                if (tokens.length == 3) {
+                    // STORE r0, @100 → 4 octets
+                    emitByte(Opcode.STORE.getValue());
+                    emitByte(parseRegister(tokens[1]));
+                    emitWord(parseValue(tokens[2]));
+                } else if (tokens.length == 4) {
+                    // STORE_INDEX : STORE r0, @100, r1 → 5 octets
+                    emitByte(Opcode.STORE_INDEX.getValue());
+                    emitByte(parseRegister(tokens[1]));
+                    emitWord(parseValue(tokens[2]));
+                    emitByte(parseRegister(tokens[3]));
+                } else {
+                    throw new IllegalArgumentException(
+                        "STORE : nombre d'arguments incorrect " +
+                        "(attendu: STORE r0, @addr ou STORE r0, @addr, r1)"
+                    );
+                }
                 break;
 
             case "ADD":
@@ -293,6 +331,57 @@ public class Assembler {
                     emitWord(0);
                 } else {
                     emitWord(parseValue(tokens[3]));
+                }
+                break;
+
+            case "LOAD_INDEX":
+                // 5 octets : opcode + registre dest + adresse(2 octets) + registre index
+                emitByte(Opcode.LOAD_INDEX.getValue());
+                emitByte(parseRegister(tokens[1]));
+                emitWord(parseValue(tokens[2]));
+                emitByte(parseRegister(tokens[3]));
+                break;
+
+            case "STORE_INDEX":
+                // 5 octets : opcode + registre source + adresse(2 octets) + registre index
+                emitByte(Opcode.STORE_INDEX.getValue());
+                emitByte(parseRegister(tokens[1]));
+                emitWord(parseValue(tokens[2]));
+                emitByte(parseRegister(tokens[3]));
+                break;
+
+            case "DATA":
+                // Directive : écrit des octets directement en mémoire
+                // Exemple : DATA 10, 20, 30
+                for (int i = 1; i < tokens.length; i++) {
+                    int value = parseValue(tokens[i]);
+                    // Vérifie que la valeur tient sur 8 bits
+                    if (value < 0 || value > 255) {
+                        throw new IllegalArgumentException(
+                            "Valeur DATA invalide : " + value +
+                            " — doit être entre 0 et 255"
+                        );
+                    }
+                    emitByte(value);
+                }
+                break;
+
+            case "STRING":
+                // Directive : écrit une chaîne en mémoire (UTF-8)
+                // Exemple : STRING "hello"
+                if (tokens.length < 2) {
+                    throw new IllegalArgumentException(
+                        "STRING : spécifiez une chaîne (ex: STRING \"hello\")"
+                    );
+                }
+                // Reconstruit la chaîne en cas d'espaces
+                String str = line.substring(line.indexOf("\"") + 1);
+                if (str.contains("\"")) {
+                    str = str.substring(0, str.indexOf("\""));
+                }
+                // Écrit chaque caractère en UTF-8
+                for (byte b : str.getBytes(java.nio.charset.StandardCharsets.UTF_8)) {
+                    emitByte(b & 0xFF);
                 }
                 break;
 

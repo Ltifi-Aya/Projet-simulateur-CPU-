@@ -142,7 +142,25 @@ public enum Opcode {
      * <p>Paramètres : registre A (1 octet), registre B (1 octet), adresse destination (2 octets).</p>
      * <p>Exemple assembleur : {@code bne r0, r1, @100}</p>
      */
-    BNE(13);
+    BNE(13),
+
+    /**
+     * Charge en registre une valeur lue à une adresse mémoire indexée.
+     * <p>Opcode : {@code 14}</p>
+     * <p>Paramètres : registre destination (1 octet), adresse de base (2 octets), registre index (1 octet).</p>
+     * <p>L'adresse réelle = adresse de base + valeur du registre index</p>
+     * <p>Exemple assembleur : {@code load r0, @100, r1} → r0 = mémoire[100 + r1]</p>
+     */
+    LOAD_INDEX(14),
+
+    /**
+     * Sauvegarde un registre en mémoire à une adresse indexée.
+     * <p>Opcode : {@code 15}</p>
+     * <p>Paramètres : registre source (1 octet), adresse de base (2 octets), registre index (1 octet).</p>
+     * <p>L'adresse réelle = adresse de base + valeur du registre index</p>
+     * <p>Exemple assembleur : {@code store r0, @100, r1} → mémoire[100 + r1] = r0</p>
+     */
+    STORE_INDEX(15);
 
     // -------------------------------------------------------------------------
 

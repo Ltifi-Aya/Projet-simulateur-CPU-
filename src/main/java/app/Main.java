@@ -219,12 +219,19 @@ public class Main {
 
         try {
             RegisterFile registers = cpu.getRegisters();
-            System.out.println("\nRegistres :");
+            System.out.println("\n" + "-".repeat(50));
+            System.out.println("État des registres (r0 à r15) :");
+            System.out.println("-".repeat(50));
+            
             for (int i = 0; i < 16; i++) {
                 byte valeur = registers.get(i);
-                System.out.printf("  R%-2d = %3d (0x%02X)\n", i, valeur & 0xFF, valeur & 0xFF);
+                int unsignedValue = valeur & 0xFF;
+                System.out.printf("  Registre r%-2d : %3d (0x%02X)\n", i, unsignedValue, unsignedValue);
             }
-            System.out.println("\nCompteur de programme (PC) : " + cpu.getPC());
+            
+            System.out.println("-".repeat(50));
+            System.out.println("Compteur de programme (PC) : " + cpu.getPC());
+            System.out.println("-".repeat(50));
         } catch (RegisterOutOfBoundsException e) {
             System.err.println("\nErreur : " + e.getMessage());
         }
@@ -249,18 +256,15 @@ public class Main {
                 return;
             }
 
-            System.out.println();
-            boolean found = false;
+            System.out.println("\n" + "-".repeat(50));
+            System.out.println("État de la mémoire (adresses " + addrDebut + " à " + addrFin + ") :");
+            System.out.println("-".repeat(50));
+            
             for (int i = addrDebut; i <= addrFin; i++) {
                 byte valeur = memory.readByte(i);
-                if (valeur != 0) {
-                    System.out.printf("  mem[%5d] = %3d (0x%02X)\n", i, valeur & 0xFF, valeur & 0xFF);
-                    found = true;
-                }
+                System.out.printf("  Adresse mémoire %5d : %3d (0x%02X)\n", i, valeur & 0xFF, valeur & 0xFF);
             }
-            if (!found) {
-                System.out.println("  (Aucune donnee dans cette plage)");
-            }
+            System.out.println("-".repeat(50));
         } catch (NumberFormatException e) {
             System.out.println("\nErreur : entrez des nombres valides.");
         } catch (MemoryOutOfBoundsException e) {

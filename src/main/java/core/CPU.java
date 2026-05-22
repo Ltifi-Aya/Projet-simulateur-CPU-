@@ -174,6 +174,28 @@ public class CPU {
                     .execute(registers, memory, alu);
                 break;
 
+            case LOAD_INDEX:
+                // Lit le registre destination, l'adresse de base et le registre index
+                int regDestIdx = fetch();
+                int addrIdxH   = fetch();
+                int addrIdxL   = fetch();
+                int addrIdxBase = (addrIdxH << 8) | addrIdxL;
+                int regIdx     = fetch();
+                new LoadIndexInstruction(regDestIdx, addrIdxBase, regIdx)
+                    .execute(registers, memory, alu);
+                break;
+
+            case STORE_INDEX:
+                // Lit le registre source, l'adresse de base et le registre index
+                int regSrcIdx = fetch();
+                int storIdxH  = fetch();
+                int storIdxL  = fetch();
+                int storIdxAddr = (storIdxH << 8) | storIdxL;
+                int regStorIdx = fetch();
+                new StoreIndexInstruction(regSrcIdx, storIdxAddr, regStorIdx)
+                    .execute(registers, memory, alu);
+                break;
+
             default:
                 throw new InvalidOpcodeException(opcodeValue);
         }
